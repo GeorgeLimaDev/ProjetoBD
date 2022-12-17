@@ -4,7 +4,7 @@ CREATE DATABASE galeria;
 USE galeria;
 
 CREATE TABLE artista (
-cpf char(11) primary key,
+cpf char(11) primary key check (length(cpf) = 11),
 nomeReal varchar(45) not null,
 nomeArtistico varchar(45)
 );
@@ -23,9 +23,9 @@ idade varchar(3), #Testar se aqui passa texto por conta do tipo
 sexo varchar(45) check (sexo = 'M' or sexo = 'F' or sexo = null),
 numeroFone varchar(45) not null check (length(numeroFone) >= 8),
 dddFone char(3) not null check (length(dddFone) = 2),
-numDeCupons varchar(45) default(0),
+numDeCupons varchar(45) default(0), #Talvez mudar para um tipo numérico
 FK_funcionario char(11) not null,
-FK_cliente char(11), #Chave do auto-relacionamento de indicação entre clientes
+FK_cliente char(11), #Chave do auto-relacionamento opcional de indicação entre clientes
 constraint FK_funcionarioEmCliente foreign key (FK_funcionario) references funcionario(cpf)
 );
 #DROP TABLE cliente; #Caso precise alterar algo na tabela remova o # no começo da linha.
@@ -46,7 +46,7 @@ estado char(2) not null check (length(estado) = 2),
 cep varchar(8) not null check (length(cep) = 8),
 salario decimal (10,2) not null check (salario > 0), #testar
 etnia varchar(45),
-dataNasc date not null, check (dataNasc < sysdate()), #Continua gerando zeros.
+dataNasc date not null, check (dataNasc < sysdate()), #NÃO FUNCIONA!!!!
 pis char(11) not null unique check (length(pis) = 11), #chave candidata
 numeroCarteira char(7) not null check (length(numeroCarteira) = 7),
 uf char(2) not null check (length(uf) = 2),
@@ -74,7 +74,7 @@ endereco varchar(45) not null #pensar em aumentar o tamanho.
 CREATE TABLE exposicao (
 numero int auto_increment,
 convidados varchar(45) not null, #pensar em aumentar o tamanho.
-dataRealizacao date not null check (dataRealizacao < sysdate()), #Continua gerando zeros.
+dataRealizacao date not null check (dataRealizacao < sysdate()),
 FK_estudio char(14) not null,
 constraint PK_exposicao primary key (numero, FK_estudio),
 constraint FK_estudioEmExposicao foreign key (FK_estudio) references estudio(cnpj)
@@ -89,7 +89,7 @@ constraint FK_clienteEmInteresse foreign key (FK_cliente) references cliente(cpf
 );
 #DROP TABLE interesse; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
-#Entidade que contém especialização
+#Entidade que contém a especialização
 CREATE TABLE peca (
 codigoPeca int primary key,
 titulo varchar(45) not null
@@ -98,7 +98,7 @@ titulo varchar(45) not null
 
 #Especialização de peça
 CREATE TABLE fisica (
-FK_CodigoPeca int primary key,
+FK_CodigoPeca int, #Chave herdada da entidade generalista peça
 peso decimal(4,2) not null,
 comprimento decimal(3,2) not null,
 largura decimal(3,2) not null,
@@ -109,7 +109,7 @@ constraint FK_CodigoPecaEmFisica foreign key (FK_CodigoPeca) references peca(cod
 
 #Especialização de peça
 CREATE TABLE digital (
-FK_CodigoPeca int primary key,
+FK_CodigoPeca int, #Chave herdada da entidade generalista peça
 token varchar(45) not null unique, #Chave candidata
 constraint FK_CodigoPecaEmDigital foreign key (FK_CodigoPeca) references peca(codigoPeca)
 );
@@ -125,12 +125,12 @@ constraint FK_ExibidaEmExposicao foreign key (FK_exposicao) references exposicao
 );
 #DROP TABLE exibidaEm; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
-#Agregação de pedido
+#Agregação
 CREATE TABLE pedido (
 codPedido int primary key,
 FK_cliente char(11) not null,
 FK_CodigoPeca int not null unique,
-dataPedido date not null check (dataPedido < sysdate()), #Continua gerando zeros.
+dataPedido date not null check (dataPedido < sysdate()),
 notaFiscal varchar(45) not null, #Deve ser unique?
 tipoEntrega varchar(45) not null check (tipoEntrega = 'Retirada na loja' or tipoEntrega = 'Entrega em domicílio'),
 constraint AK_pedido unique (FK_cliente, FK_codigoPeca),
@@ -170,6 +170,7 @@ null,
 '1010',
 'recepcionista'
 );
+UPDATE funcionario set dataNasc = '1995-5-1' where cpf = '12345678900'; #Atualizando sem precisar excluir pois já está referenciado em um cliente.
 
 INSERT funcionario values (
 '98765432100',
@@ -182,12 +183,31 @@ INSERT funcionario values (
 '58309090',
 5000.00,
 'Parda',
-07/07/1989,
+'1989-7-7',
 '98765432101',
 '7654321',
 'PB',
 '0945',
 'contadora'
+);
+
+INSERT funcionario values (
+'98745612000',
+'Maria Barbosa Calixto',
+'Rua dos Alfineiros',
+'4',
+'Jaguaribe',
+'João Pessoa',
+'PB',
+'58309384',
+5000.00,
+'Branca',
+'1981-10-21', #corrigir ano
+'98765432100',
+'7654323',
+'PB',
+'7394',
+'curadora'
 );
 
 INSERT cliente values (
@@ -226,6 +246,62 @@ default,
 '87865694982'
 );
 
+INSERT cliente values (
+'18452055686',
+'Pedro Henricky Diniz',
+'Rua Vitória da Conquista',
+'13',
+'Tibiri',
+'Santa Rita',
+'PB',
+'58309421',
+'27',
+'M',
+'987642365',
+'83',
+default,
+'12345678900',
+'94385923712'
+);
+
+UPDATE cliente set numDeCupons = 1 where cpf = '94385923712'; #Adicionando um cupom para Gabrielly por ter indicado Pedro
+
+INSERT cliente values (
+'46194571525',
+'Felipe Cartaxo de Freitas',
+'Avenida dos Navegantes',
+'171',
+'Cruz das Armas',
+'João Pessoa',
+'PB',
+'58309823',
+null,
+null,
+'991638462',
+'83',
+default,
+'12345678900',
+null
+);
+
+INSERT cliente values (
+'83496628464',
+'Diego Augusto Barbosa Calixto',
+'Travessa Bombeiro Martins',
+'5',
+'Conjunto União',
+'Santa Rita',
+'PB',
+'58309914',
+38,
+'M',
+'932320268',
+'83',
+default,
+'12345678900',
+null
+);
+
 INSERT interesse values (
 'arte moderna',
 '87865694982'
@@ -237,7 +313,31 @@ INSERT interesse values (
 INSERT artista values (
 '13142453587',
 'Ricardo Brenant III',
-'Richie, the 3rd'
+'Richie the 3rd'
+);
+
+INSERT artista values (
+'84802748671',
+'Edicarlos Araújo',
+'Ed'
+);
+
+INSERT artista values (
+'08503999471',
+'George Barbosa de Lima',
+null
+);
+
+INSERT artista values (
+'84958621837',
+'Luiz Carlos de Pontes Filho',
+null
+);
+
+INSERT artista values (
+'84015456788',
+'Ellen Bianca Brito da Fonseca',
+'Francesa'
 );
 
 INSERT especialidade values (
@@ -248,20 +348,125 @@ INSERT especialidade values (
 '13142453587'
 );
 
+INSERT especialidade values (
+'Pintura',
+'84802748671'
+), (
+'Esculturas',
+'84802748671'
+);
+
+INSERT especialidade values (
+'Fotografia',
+'84958621837'
+);
+
 INSERT peca values (
 101,
 'Travelling through space'
-); #DÚVIDA: Como fazer a relação entre o artista e a peça?
+);
 
 INSERT peca values (
 204,
 'Estátua bacana'
 );
 
+INSERT peca values (
+551,
+'Paisagem na moldura'
+);
+
+INSERT peca values (
+812,
+'Jarro esculpido'
+);
+
+INSERT peca values (
+306,
+'Fotografia conceitual'
+);
+
+INSERT peca values (
+609,
+'Óleo sobre tela'
+);
+
+INSERT fisica values (
+551,
+1.5,
+0.50,
+0.50,
+0.50
+);
+
+INSERT fisica values (
+812,
+10.0,
+1,
+1,
+1
+);
+
+INSERT fisica values (
+306,
+0.10,
+0.80,
+0.80,
+0.45
+);
+
+INSERT fisica values (
+609,
+3,
+0.20,
+0.60,
+0.50
+);
+
+INSERT peca values (
+353,
+'Monkeypox'
+);
+
+INSERT peca values (
+702,
+'Brazilian Aesthetics'
+);
+
+INSERT peca values (
+482,
+'Pegasus Fantasy'
+);
+
+INSERT peca values (
+555,
+'worthless NFT'
+);
+
 INSERT digital values (
 101,
+'#%jsahdiahsnD81278643'
+);
+
+INSERT digital values (
+353,
 'dauhsmnbee124435457m__daeds7864'
-); #DÚVIDA: Todas as especializações de peça devem ser feitas assim?
+);
+
+INSERT digital values (
+702,
+'iahsnD812786124435457m__daeds7864'
+);
+
+INSERT digital values (
+482,
+'lnJBDIGWYIUG9634879u¨*&IBKJBD*&vfada'
+);
+
+INSERT digital values (
+555,
+'DOHNAODH67987bvu1IG*¨&%¨&V'
+);
 
 INSERT produz values (
 '13142453587',
@@ -272,6 +477,30 @@ INSERT estudio values (
 '94985873762192', #Verificar validação pois aceita strings menores que 14
 'Coletivo de arte Paraibano',
 'Rua das Trincheiras 145 Centro João Pessoa PB'
+);
+
+INSERT estudio values (
+'93649164956960',
+'Associação de escultores de João Pessoa',
+'Rua Primavera 25 Tambaú João Pessoa PB'
+);
+
+INSERT estudio values (
+'98164527257412',
+'Estúdio Flor do Campo',
+'Rua dos Operários 80 Sesi Bayeux PB'
+);
+
+INSERT estudio values (
+'90168464826278',
+'International Crafts',
+'Av. Ruy Carneiro 1000 Manaíra João Pessoa PB'
+);
+
+INSERT estudio values (
+'51253891247443',
+'União da Feira de Tambaú',
+'Av. Epitácio Pessoa 15 Miramar João Pessoa PB'
 );
 
 INSERT exposicao values (
@@ -300,27 +529,37 @@ INSERT pedido values (
 1,
 '87865694982',
 101,
-17/11/2022, #Data dando o mesmo problema
+2021-11-16, #A data capturada pelo sistema não confere com a atual e provoca falha no check.
 '123456789',
 'Entrega em domicílio'
-);
+); #NÃO INSERIDO. Problema na data.
 
 INSERT exibidaEm values (
 101,
 1
 );
 
+INSERT exibidaEm values (
+353,
+1
+);
+
+INSERT exibidaEm values (
+353,
+2
+);
+
 #Agrupando a visualização das inserções aqui:
-#SELECT * FROM artista;
-#SELECT * FROM cliente;
-#SELECT * FROM digital;
-#SELECT * FROM especialidade;
-#SELECT * FROM estudio;
+#SELECT * FROM artista; #5 artistas ok
+#SELECT * FROM cliente; #5 clientes ok
+#SELECT * FROM digital; #5 digitais ok
+#SELECT * FROM especialidade; #5 especialidades ok
+#SELECT * FROM estudio; #5 estúdios ok
 #SELECT * FROM exibidaEm;
 #SELECT * FROM exposicao;
-#SELECT * FROM fisica;
+#SELECT * FROM fisica; #5 físicas ok
 #SELECT * FROM funcionario;
 #SELECT * FROM interesse;
-#SELECT * FROM peca;
+#SELECT * FROM peca; #10 peças ok
 #SELECT * FROM pedido;
 #SELECT * FROM produz;
