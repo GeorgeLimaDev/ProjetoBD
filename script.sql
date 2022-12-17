@@ -1,3 +1,4 @@
+#Parte 1: Criação do banco
 CREATE DATABASE galeria;
 
 USE galeria;
@@ -22,7 +23,7 @@ idade varchar(3), #Testar se aqui passa texto por conta do tipo
 sexo varchar(45) check (sexo = 'M' or 'F' or null),
 numeroFone varchar(45) not null,
 dddFone char(3) not null,
-numDeCupons varchar(45),
+numDeCupons varchar(45) default(0),
 FK_funcionario char(11) not null,
 FK_cliente char(11), #Chave do auto-relacionamento de indicação entre clientes
 constraint FK_funcionarioEmCliente foreign key (FK_funcionario) references funcionario(cpf)
@@ -109,7 +110,7 @@ constraint FK_CodigoPecaEmFisica foreign key (FK_CodigoPeca) references peca(cod
 #Especialização de peça
 CREATE TABLE digital (
 FK_CodigoPeca int primary key,
-token varchar(45) not null,
+token varchar(45) not null unique,
 constraint FK_CodigoPecaEmDigital foreign key (FK_CodigoPeca) references peca(codigoPeca)
 );
 #DROP TABLE digital; #Caso precise alterar algo na tabela remova o # no começo da linha.
@@ -118,7 +119,7 @@ constraint FK_CodigoPecaEmDigital foreign key (FK_CodigoPeca) references peca(co
 CREATE TABLE exibidaEm (
 FK_CodigoPeca int,
 FK_exposicao int,
-constraint PK_Exibicao primary key (FK_CodigoPeca, FK_exposicao),
+constraint PK_ExibidaEm primary key (FK_CodigoPeca, FK_exposicao),
 constraint FK_CodigoPecaExibida foreign key (FK_CodigoPeca) references peca(codigoPeca),
 constraint FK_ExibidaEmExposicao foreign key (FK_exposicao) references exposicao(numero)
 );
@@ -127,15 +128,18 @@ constraint FK_ExibidaEmExposicao foreign key (FK_exposicao) references exposicao
 #Agregação de pedido
 CREATE TABLE pedido (
 codPedido int primary key,
-FK_cliente char(11) not null, #Isso deve ser unique?
-FK_CodigoPeca varchar(45) not null unique,
+FK_cliente char(11) not null,
+FK_CodigoPeca int not null unique,
 dataPedido date not null check (dataPedido < sysdate()),
 notaFiscal varchar(45) not null,
-tipoEntrega varchar(45) not null check (tipoEntrega = 'Retirada na loja' or 'Entrega em domicílio'),
-constraint AK_pedido unique (FK_cliente, FK_codigoPeca)
+tipoEntrega varchar(45) not null check (tipoEntrega = 'Retirada na loja' or tipoEntrega = 'Entrega em domicílio'),
+constraint AK_pedido unique (FK_cliente, FK_codigoPeca),
+constraint FK_clienteEmPedido foreign key (FK_cliente) references cliente(cpf),
+constraint FK_CodigoPecaEmPedido foreign key (FK_CodigoPeca) references peca(codigoPeca)
 );
-#DROP TABLE pedido; #Caso precise alterar algo na tabela remova o # no começo da linha.
+DROP TABLE pedido; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
+#Tabela de cardinalidade N:N
 CREATE TABLE produz (
 FK_artista char(11) not null,
 FK_CodigoPeca int not null,
@@ -146,3 +150,159 @@ constraint FK_CodigoPecaEmProduz foreign key (FK_CodigoPeca) references peca(cod
 #DROP TABLE produz; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
 #show tables;
+
+#Parte 2: Alimentando o banco:
+INSERT funcionario values (
+'12345678900',
+'João José da Silva',
+'Rua dos prazeres',
+'100',
+'Mangabeira',
+'João Pessoa',
+'PB',
+'58309000',
+2500.00,
+null,
+01/05/1995,
+'12345678910',
+'1234567',
+'PB',
+'1010',
+'recepcionista'
+);
+
+INSERT funcionario values (
+'98765432100',
+'Maria do Rosário Cavalcante da Silva',
+'Avenida Brasil',
+'45',
+'Jardim Aeroporto',
+'Bayeux',
+'PB',
+'58309090',
+5000.00,
+'Parda',
+07/07/1989,
+'98765432101',
+'7654321',
+'PB',
+'0945',
+'contadora'
+);
+
+INSERT cliente values (
+'87865694982',
+'Washington Luís Pedreiro da Rocha',
+'Avenida Beira Mar',
+'15',
+'Manaíra',
+'João Pessoa',
+'PB',
+'58309384',
+null,
+'M',
+'99999-0909',
+'83',
+default,
+'12345678900',
+null
+);
+
+INSERT interesse values (
+'arte moderna',
+'87865694982'
+), (
+'NFTs',
+'87865694982'
+);
+
+INSERT artista values (
+'13142453587',
+'Ricardo Brenant III',
+'Richie, the 3rd'
+);
+
+INSERT especialidade values (
+'Arte digital',
+'13142453587'
+), (
+'Surrealismo',
+'13142453587'
+);
+
+INSERT peca values (
+101,
+'Travelling through space'
+); #DÚVIDA: Como fazer a relação entre o artista e a peça?
+
+INSERT peca values (
+204,
+'Estátua bacana'
+);
+
+INSERT digital values (
+101,
+'dauhsmnbee124435457m__daeds7864'
+); #DÚVIDA: Todas as especializações de peça devem ser feitas assim?
+
+INSERT produz values (
+'13142453587',
+'101'
+); #DÚVIDA Todas as relações entre peças e artistas devem ser feitas assim?
+
+INSERT estudio values (
+'94985873762192', #Verificar validação pois aceita strings menores que 14
+'Coletivo de arte Paraibano',
+'Rua das Trincheiras 145 Centro João Pessoa PB'
+);
+
+INSERT exposicao values (
+default, #Recebe o valor auto-incrementado
+'Fulano, Cicrano, Beltrano...',
+18/12/2022, #PROBLEMA: o check de data futura deixou a inserção ser feita e zerou a data.
+'94985873762192'
+);
+
+INSERT exposicao values (
+default,
+'Fulano, Cicrano, Beltrano...',
+16/12/2022, #PROBLEMA: Zerou a data mesmo sendo data passada.
+'94985873762192'
+);
+
+INSERT fisica values (
+204, #teste
+05.50,
+1.05,
+1.00,
+1.00
+);
+
+INSERT pedido values (
+1,
+'87865694982',
+101,
+17/11/2022, #Data dando o mesmo problema
+'123456789',
+'Entrega em domicílio'
+);
+
+INSERT exibidaEm values (
+101,
+1
+);
+
+#Agrupando a visualização das inserções aqui:
+#SELECT * FROM artista;
+#SELECT * FROM cliente;
+#SELECT * FROM digital;
+#SELECT * FROM especialidade;
+#SELECT * FROM estudio;
+#SELECT * FROM exibidaEm;
+#SELECT * FROM exposicao;
+#SELECT * FROM fisica;
+#SELECT * FROM funcionario;
+#SELECT * FROM interesse;
+#SELECT * FROM peca;
+#SELECT * FROM pedido;
+#SELECT * FROM produz;
