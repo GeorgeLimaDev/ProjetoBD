@@ -20,7 +20,7 @@ cidade varchar(45) not null,
 estado char(2) not null,
 cep varchar(8) not null,
 idade varchar(3), #Testar se aqui passa texto por conta do tipo
-sexo varchar(45) check (sexo = 'M' or 'F' or null),
+sexo varchar(45) check (sexo = 'M' or sexo = 'F' or null),
 numeroFone varchar(45) not null,
 dddFone char(3) not null,
 numDeCupons varchar(45) default(0),
@@ -137,7 +137,7 @@ constraint AK_pedido unique (FK_cliente, FK_codigoPeca),
 constraint FK_clienteEmPedido foreign key (FK_cliente) references cliente(cpf),
 constraint FK_CodigoPecaEmPedido foreign key (FK_CodigoPeca) references peca(codigoPeca)
 );
-DROP TABLE pedido; #Caso precise alterar algo na tabela remova o # no começo da linha.
+#DROP TABLE pedido; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
 #Tabela de cardinalidade N:N
 CREATE TABLE produz (
@@ -206,6 +206,24 @@ null,
 default,
 '12345678900',
 null
+);
+
+INSERT cliente values (
+'94385923712',
+'Gabrielly dos Santos',
+'Rua Vitória da Conquista',
+'13',
+'Tibiri',
+'Santa Rita',
+'PB',
+'58309421',
+'27',
+'F',
+'987642365',
+'83',
+default,
+'12345678900',
+'87865694982'
 );
 
 INSERT interesse values (
