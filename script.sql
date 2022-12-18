@@ -556,6 +556,12 @@ INSERT estudio values (
 'Av. Epitácio Pessoa 15 Miramar João Pessoa PB'
 );
 
+INSERT estudio values (
+'27465924384678',
+'União dos artistas de Bayeux',
+'Av. Liberdade 3 Centro Bayeux PB'
+);
+
 INSERT exposicao values (
 default, #Recebe o valor auto-incrementado
 'Fulano, Cicrano, Beltrano...',
@@ -699,3 +705,36 @@ INSERT produz values (
 #SELECT * FROM peca;
 #SELECT * FROM pedido;
 #SELECT * FROM produz; #Algumas peças ficaram sem autor. Isso deveria ser possível?
+#SELECT * from produz right JOIN peca on codigoPeca = FK_codigoPeca; #Possível problema no relacionamento N:N
+
+#Parte 3: Consultas no banco: (remover comentários dos SELECTs para executar a consulta)
+
+#Consulta da tabela cliente retornando apenas os clientes que informaram seus sexos.
+#SELECT nome, sexo from cliente WHERE sexo in ('M', 'F');
+
+#Consulta da tabela funcionario retornando apenas os funcionários nascidos na década de 90
+#SELECT cpf, nome, dataNasc from funcionario WHERE year(dataNasc) between 1990 AND 1995;
+
+#Consulta da tabela artista retornando apenas os artistas que tenham nomes artisticos
+#SELECT * from artista WHERE nomeArtistico is not null;
+
+#Consulta da tabela estudio retornando apenas os estúdios na cidade de Bayeux
+#SELECT * from estudio WHERE endereco like '%Bayeux%';
+
+#Consulta da tabela pedido retornando os pedidos ordenados por data (mais recentes primeiro)
+#SELECT * from pedido ORDER BY dataPedido desc;
+
+#Consulta da tabela fisica (peca) retornando o peso médio das peças cadastradas
+#SELECT AVG (peso) as pesoMedio from fisica;
+
+#Consulta da tabela funcionario retornando o maior e o menor salário
+#SELECT max(salario) as maiorSalario, min(salario) as menorSalario from funcionario;
+
+#Consulta da tabela cliente agrupando o número de clientes pro bairro
+#SELECT count(bairro), bairro from cliente GROUP BY bairro;
+
+#Consulta da tabela pedido retornando apenas o tipo de entrega em domicílio
+#SELECT * from pedido HAVING tipoEntrega = 'Entrega em domicílio';
+
+#Consulta conjunta das tabelas artista e especialidade
+#SELECT * from artista JOIN especialidade on cpf = FK_artista;
