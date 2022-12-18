@@ -1,4 +1,5 @@
 #Parte 1: Criação do banco
+
 CREATE DATABASE galeria;
 
 USE galeria;
@@ -152,6 +153,7 @@ constraint FK_CodigoPecaEmProduz foreign key (FK_CodigoPeca) references peca(cod
 #show tables;
 
 #Parte 2: Alimentando o banco:
+
 INSERT funcionario values (
 '12345678900',
 'João José da Silva',
@@ -284,6 +286,9 @@ default,
 '87865694982'
 );
 
+#Adicionando um cupom para Washington por ter indicado Gabrielly
+UPDATE cliente set numDeCupons = 1 where cpf = '87865694982';
+
 INSERT cliente values (
 '18452055686',
 'Pedro Henricky Diniz',
@@ -302,7 +307,8 @@ default,
 '94385923712'
 );
 
-UPDATE cliente set numDeCupons = 1 where cpf = '94385923712'; #Adicionando um cupom para Gabrielly por ter indicado Pedro
+#Adicionando um cupom para Gabrielly por ter indicado Pedro
+UPDATE cliente set numDeCupons = 1 where cpf = '94385923712';
 
 INSERT cliente values (
 '46194571525',
@@ -691,6 +697,38 @@ INSERT produz values (
 555
 );
 
+INSERT produz values (
+'08503999471',
+482
+),(
+'08503999471',
+702
+);
+
+INSERT produz values (
+'84802748671',
+204
+),(
+'84802748671',
+551
+);
+
+INSERT produz values (
+'84958621837',
+306
+),(
+'84958621837',
+609
+);
+
+INSERT produz values (
+'84015456788',
+306
+),(
+'84015456788',
+609
+);
+
 #Agrupando a visualização das inserções aqui:
 #SELECT * FROM artista;
 #SELECT * FROM cliente;
@@ -704,15 +742,14 @@ INSERT produz values (
 #SELECT * FROM interesse;
 #SELECT * FROM peca;
 #SELECT * FROM pedido;
-#SELECT * FROM produz; #Algumas peças ficaram sem autor. Isso deveria ser possível?
-#SELECT * from produz right JOIN peca on codigoPeca = FK_codigoPeca; #Possível problema no relacionamento N:N
+#SELECT * FROM produz;
 
 #Parte 3: Consultas no banco: (remover comentários dos SELECTs para executar a consulta)
 
 #Consulta da tabela cliente retornando apenas os clientes que informaram seus sexos.
 #SELECT nome, sexo from cliente WHERE sexo in ('M', 'F');
 
-#Consulta da tabela funcionario retornando apenas os funcionários nascidos na década de 90
+#Consulta da tabela funcionario retornando apenas os funcionários nascidos entre 90 e 95
 #SELECT cpf, nome, dataNasc from funcionario WHERE year(dataNasc) between 1990 AND 1995;
 
 #Consulta da tabela artista retornando apenas os artistas que tenham nomes artisticos
@@ -737,4 +774,5 @@ INSERT produz values (
 #SELECT * from pedido HAVING tipoEntrega = 'Entrega em domicílio';
 
 #Consulta conjunta das tabelas artista e especialidade
+#Artistas podem ter mais de uma especialidade, portanto podem aparecer repetidamente
 #SELECT * from artista JOIN especialidade on cpf = FK_artista;
