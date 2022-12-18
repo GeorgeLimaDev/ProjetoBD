@@ -19,11 +19,11 @@ bairro varchar(45) not null,
 cidade varchar(45) not null,
 estado char(2) not null check (length(estado) = 2),
 cep varchar(8) not null check (length(cep) = 8),
-idade varchar(3), #Testar se aqui passa texto por conta do tipo
+idade varchar(3),
 sexo varchar(45) check (sexo = 'M' or sexo = 'F' or sexo = null),
 numeroFone varchar(45) not null check (length(numeroFone) >= 8),
 dddFone char(3) not null check (length(dddFone) = 2),
-numDeCupons varchar(45) default(0), #Talvez mudar para um tipo numérico
+numDeCupons varchar(45) default(0),
 FK_funcionario char(11) not null,
 FK_cliente char(11), #Chave do auto-relacionamento opcional de indicação entre clientes
 constraint FK_funcionarioEmCliente foreign key (FK_funcionario) references funcionario(cpf)
@@ -46,7 +46,7 @@ estado char(2) not null check (length(estado) = 2),
 cep varchar(8) not null check (length(cep) = 8),
 salario decimal (10,2) not null check (salario > 0), #testar
 etnia varchar(45),
-dataNasc date not null, check (dataNasc < sysdate()), #NÃO FUNCIONA!!!!
+dataNasc date not null, check (dataNasc < sysdate()),
 pis char(11) not null unique check (length(pis) = 11), #chave candidata
 numeroCarteira char(7) not null check (length(numeroCarteira) = 7),
 uf char(2) not null check (length(uf) = 2),
@@ -64,16 +64,16 @@ constraint PK_especialidade primary key (IDespecialidade, FK_artista)
 #DROP TABLE especialidade; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
 CREATE TABLE estudio (
-cnpj char(14) primary key check (length(cnpj) = 14), #pensar em botar um tipo numerico
+cnpj char(14) primary key check (length(cnpj) = 14),
 nome varchar(45) not null,
-endereco varchar(45) not null #pensar em aumentar o tamanho.
+endereco varchar(45) not null
 );
 #DROP TABLE estudio; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
 #Entidade fraca
 CREATE TABLE exposicao (
 numero int auto_increment,
-convidados varchar(45) not null, #pensar em aumentar o tamanho.
+convidados varchar(45) not null,
 dataRealizacao date not null check (dataRealizacao < sysdate()),
 FK_estudio char(14) not null,
 constraint PK_exposicao primary key (numero, FK_estudio),
@@ -98,7 +98,7 @@ titulo varchar(45) not null
 
 #Especialização de peça
 CREATE TABLE fisica (
-FK_CodigoPeca int, #Chave herdada da entidade generalista peça
+FK_CodigoPeca int, #Chave herdada da entidade generalista peca
 peso decimal(4,2) not null,
 comprimento decimal(3,2) not null,
 largura decimal(3,2) not null,
@@ -109,7 +109,7 @@ constraint FK_CodigoPecaEmFisica foreign key (FK_CodigoPeca) references peca(cod
 
 #Especialização de peça
 CREATE TABLE digital (
-FK_CodigoPeca int, #Chave herdada da entidade generalista peça
+FK_CodigoPeca int, #Chave herdada da entidade generalista peca
 token varchar(45) not null unique, #Chave candidata
 constraint FK_CodigoPecaEmDigital foreign key (FK_CodigoPeca) references peca(codigoPeca)
 );
@@ -131,7 +131,7 @@ codPedido int primary key,
 FK_cliente char(11) not null,
 FK_CodigoPeca int not null unique,
 dataPedido date not null check (dataPedido < sysdate()),
-notaFiscal varchar(45) not null, #Deve ser unique?
+notaFiscal varchar(45) not null,
 tipoEntrega varchar(45) not null check (tipoEntrega = 'Retirada na loja' or tipoEntrega = 'Entrega em domicílio'),
 constraint AK_pedido unique (FK_cliente, FK_codigoPeca),
 constraint FK_clienteEmPedido foreign key (FK_cliente) references cliente(cpf),
@@ -202,12 +202,50 @@ INSERT funcionario values (
 '58309384',
 5000.00,
 'Branca',
-'1981-10-21', #corrigir ano
+'1981-10-21',
 '98765432100',
 '7654323',
 'PB',
 '7394',
 'curadora'
+);
+
+INSERT funcionario values (
+'13846294649',
+'Amanda Cruz de Araújo',
+'Rua da vitória',
+'100',
+'Jaguaribe',
+'João Pessoa',
+'PB',
+'58307391',
+10000.00,
+'Branca',
+'1995-6-15',
+'99374501200',
+'1284562',
+'PB',
+'8423',
+'Diretora geral'
+);
+
+INSERT funcionario values (
+'86346811627',
+'Amauri Gomes Olimpio Flor',
+'Rua Orlando da Cunha',
+'137',
+'Mutirão',
+'Bayeux',
+'PB',
+'58112576',
+1500.00,
+null,
+'1990-10-18',
+'93826485710',
+'3767456',
+'PB',
+'2895',
+'Estagiário'
 );
 
 INSERT cliente values (
@@ -308,6 +346,21 @@ INSERT interesse values (
 ), (
 'NFTs',
 '87865694982'
+);
+
+INSERT interesse values (
+'Estética asiática',
+'94385923712'
+);
+
+INSERT interesse values (
+'nacionalismo',
+'83496628464'
+);
+
+INSERT interesse values (
+'NFTs',
+'46194571525'
 );
 
 INSERT artista values (
@@ -471,10 +524,10 @@ INSERT digital values (
 INSERT produz values (
 '13142453587',
 '101'
-); #DÚVIDA Todas as relações entre peças e artistas devem ser feitas assim?
+);
 
 INSERT estudio values (
-'94985873762192', #Verificar validação pois aceita strings menores que 14
+'94985873762192',
 'Coletivo de arte Paraibano',
 'Rua das Trincheiras 145 Centro João Pessoa PB'
 );
@@ -506,19 +559,40 @@ INSERT estudio values (
 INSERT exposicao values (
 default, #Recebe o valor auto-incrementado
 'Fulano, Cicrano, Beltrano...',
-18/12/2022, #PROBLEMA: o check de data futura deixou a inserção ser feita e zerou a data.
+'2022-12-17',
 '94985873762192'
 );
 
 INSERT exposicao values (
 default,
 'Fulano, Cicrano, Beltrano...',
-16/12/2022, #PROBLEMA: Zerou a data mesmo sendo data passada.
+'2022-12-17',
 '94985873762192'
 );
 
+INSERT exposicao values (
+default,
+'Fulano, Cicrano, Beltrano...',
+'2022-11-15',
+'90168464826278'
+);
+
+INSERT exposicao values (
+default,
+'Fulano, Cicrano, Beltrano...',
+'2021-11-21',
+'98164527257412'
+);
+
+INSERT exposicao values (
+default,
+'Fulano, Cicrano, Beltrano...',
+'2022-5-1',
+'51253891247443'
+);
+
 INSERT fisica values (
-204, #teste
+204,
 05.50,
 1.05,
 1.00,
@@ -529,37 +603,99 @@ INSERT pedido values (
 1,
 '87865694982',
 101,
-2021-11-16, #A data capturada pelo sistema não confere com a atual e provoca falha no check.
+'2022-12-16',
 '123456789',
 'Entrega em domicílio'
-); #NÃO INSERIDO. Problema na data.
+);
+
+INSERT pedido values (
+2,
+'87865694982',
+353,
+'2022-12-17',
+'987654321',
+'Entrega em domicílio'
+);
+
+INSERT pedido values (
+3,
+'46194571525',
+812,
+'2022-11-18',
+'283947561',
+'Retirada na loja'
+);
+
+INSERT pedido values (
+4,
+'94385923712',
+306,
+'2021-5-12',
+'984727401',
+'Retirada na loja'
+);
+
+INSERT pedido values (
+5,
+'94385923712',
+551,
+'2022-2-4',
+'376885671',
+'Retirada na loja'
+);
 
 INSERT exibidaEm values (
 101,
-1
+3
 );
 
 INSERT exibidaEm values (
 353,
-1
+3
 );
 
 INSERT exibidaEm values (
 353,
-2
+4
+);
+
+INSERT exibidaEm values (
+609,
+4
+),(
+555,
+4
+);
+
+INSERT produz values (
+'84802748671',
+812
+);
+
+INSERT produz values (
+'84958621837',
+812
+);
+
+INSERT produz values (
+'08503999471',
+353
+),(
+'08503999471',
+555
 );
 
 #Agrupando a visualização das inserções aqui:
-#SELECT * FROM artista; #5 artistas ok
-#SELECT * FROM cliente; #5 clientes ok
-#SELECT * FROM digital; #5 digitais ok
-#SELECT * FROM especialidade; #5 especialidades ok
-#SELECT * FROM estudio; #5 estúdios ok
+#SELECT * FROM artista;
+#SELECT * FROM cliente;
+#SELECT * FROM digital;
+#SELECT * FROM especialidade;
+#SELECT * FROM estudio;
 #SELECT * FROM exibidaEm;
 #SELECT * FROM exposicao;
-#SELECT * FROM fisica; #5 físicas ok
+#SELECT * FROM fisica;
 #SELECT * FROM funcionario;
 #SELECT * FROM interesse;
-#SELECT * FROM peca; #10 peças ok
+#SELECT * FROM peca;
 #SELECT * FROM pedido;
-#SELECT * FROM produz;
+#SELECT * FROM produz; #Algumas peças ficaram sem autor. Isso deveria ser possível?
