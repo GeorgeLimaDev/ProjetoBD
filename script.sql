@@ -10,6 +10,26 @@ nomeArtistico varchar(45)
 );
 #DROP TABLE artista; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
+CREATE TABLE funcionario (
+cpf char(11) primary key check (length(cpf) = 11),
+nome varchar(45) not null,
+rua varchar(45) not null,
+numeroResidencia varchar(45) not null,
+bairro varchar(45) not null,
+cidade varchar(45) not null,
+estado char(2) not null check (length(estado) = 2),
+cep varchar(8) not null check (length(cep) = 8),
+salario decimal (10,2) not null check (salario > 0), #testar
+etnia varchar(45),
+dataNasc date not null, check (dataNasc < sysdate()),
+pis char(11) not null unique check (length(pis) = 11), #chave candidata
+numeroCarteira char(7) not null check (length(numeroCarteira) = 7),
+uf char(2) not null check (length(uf) = 2),
+serie char(4) not null check (length(serie) = 4),
+funcao varchar(45) not null
+);
+#DROP TABLE funcionario; #Caso precise alterar algo na tabela remova o # no começo da linha.
+
 CREATE TABLE cliente (
 cpf char(11) primary key check (length(cpf) = 11),
 nome varchar(45) not null,
@@ -34,26 +54,6 @@ constraint FK_funcionarioEmCliente foreign key (FK_funcionario) references funci
 ALTER TABLE cliente
 modify FK_cliente char(11),
 add constraint FK_clienteEmCliente foreign key (FK_cliente) references cliente(cpf);
-
-CREATE TABLE funcionario (
-cpf char(11) primary key check (length(cpf) = 11),
-nome varchar(45) not null,
-rua varchar(45) not null,
-numeroResidencia varchar(45) not null,
-bairro varchar(45) not null,
-cidade varchar(45) not null,
-estado char(2) not null check (length(estado) = 2),
-cep varchar(8) not null check (length(cep) = 8),
-salario decimal (10,2) not null check (salario > 0), #testar
-etnia varchar(45),
-dataNasc date not null, check (dataNasc < sysdate()),
-pis char(11) not null unique check (length(pis) = 11), #chave candidata
-numeroCarteira char(7) not null check (length(numeroCarteira) = 7),
-uf char(2) not null check (length(uf) = 2),
-serie char(4) not null check (length(serie) = 4),
-funcao varchar(45) not null
-);
-#DROP TABLE funcionario; #Caso precise alterar algo na tabela remova o # no começo da linha.
 
 CREATE TABLE especialidade (
 IDespecialidade varchar(45),
